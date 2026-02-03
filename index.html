@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burrow - Premium Minecraft Emporium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-primary: #ff69b4;
+            --pink-light: #ffb6c1;
+            --pink-dark: #c71585;
+            --green-primary: #69f0ae;
+            --green-light: #b9f6ca;
+            --green-dark: #2e7d32;
+            --purple-deep: #1a0b2e;
+            --purple-mid: #2d1b4e;
+            --purple-accent: #9c27b0;
+            --accent-blue: #4fc3f7;
+            --accent-red: #ff5252;
+            --chat-bg: rgba(20, 20, 30, 0.95);
+            --mod-blue: #2196f3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(ellipse at top, var(--pink-dark) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom, var(--green-dark) 0%, #0a0a0f 100%),
+                        linear-gradient(135deg, #ff69b4 0%, #69f0ae 50%, #2e7d32 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .maintenance-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a0b2e 0%, #0f0c29 100%);
+            z-index: 99999; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+        }
+        .maintenance-overlay.active { display: flex; }
+        .maintenance-icon { font-size: 6rem; margin-bottom: 30px; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+        .maintenance-title {
+            font-family: 'Cinzel', serif; font-size: 4rem; font-weight: 800;
+            background: linear-gradient(180deg, #fff 0%, var(--pink-primary) 50%, var(--green-primary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 20px;
+        }
+        .maintenance-text { font-size: 1.5rem; color: rgba(255, 255, 255, 0.8); max-width: 600px; line-height: 1.6; }
+        .maintenance-spinner {
+            width: 60px; height: 60px; border: 4px solid rgba(255, 105, 180, 0.2);
+            border-top-color: var(--pink-primary); border-radius: 50%; animation: spin 1s linear infinite; margin-top: 40px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .announcement-banner {
+            display: none; position: fixed; top: 60px; left: 0; right: 0;
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.15) 0%, rgba(105, 240, 174, 0.15) 100%);
+            backdrop-filter: blur(20px); border-bottom: 2px solid var(--pink-primary);
+            padding: 15px 20px; z-index: 9998; animation: slideDown 0.5s ease;
+        }
+        .announcement-banner.active { display: block; }
+        .announcement-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .announcement-icon { font-size: 1.5rem; }
+        .announcement-text { font-size: 1.1rem; font-weight: 500; color: #fff; text-align: center; }
+        .announcement-close {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s;
+        }
+        .announcement-close:hover { background: rgba(255, 82, 82, 0.3); border-color: #ff5252; color: #ff5252; }
+
+        .announcement-controls {
+            display: none; background: rgba(255, 105, 180, 0.1); border: 2px solid rgba(255, 105, 180, 0.5);
+            border-radius: 16px; padding: 25px; margin-bottom: 30px; animation: slideDown 0.5s ease;
+        }
+        .announcement-controls.show { display: block; }
+        .announcement-controls-header {
+            font-family: 'Cinzel', serif; font-size: 1.3rem; color: #ffb6c1;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .announcement-input-group { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+        .announcement-input {
+            flex: 1; min-width: 300px; padding: 12px 20px;
+            border: 2px solid rgba(255, 105, 180, 0.5); background: rgba(0, 0, 0, 0.4);
+            color: #fff; border-radius: 10px; font-size: 1rem; outline: none;
+        }
+        .announcement-input:focus { border-color: #ff69b4; box-shadow: 0 0 20px rgba(255, 105, 180, 0.3); }
+        .maintenance-toggle { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .toggle-switch {
+            position: relative; width: 60px; height: 30px; background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px; cursor: pointer; transition: all 0.3s; border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .toggle-switch.active { background: var(--green-primary); border-color: var(--green-primary); }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px;
+            background: #fff; border-radius: 50%; transition: all 0.3s;
+        }
+        .toggle-switch.active::after { left: 32px; }
+        .toggle-label { font-weight: 600; font-size: 1rem; }
+        .toggle-label.maintenance-on { color: var(--green-primary); }
+        .toggle-label.maintenance-off { color: rgba(255, 255, 255, 0.7); }
+
+        .banned-players-panel {
+            display: none; background: rgba(183, 28, 28, 0.1); border: 2px solid rgba(255, 82, 82, 0.5);
+            border-radius: 16px; padding: 25px; margin-bottom: 30px; animation: slideDown 0.5s ease;
+        }
+        .banned-players-panel.show { display: block; }
+        .banned-panel-header {
+            font-family: 'Cinzel', serif; font-size: 1.3rem; color: #ff5252;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .ban-input-group { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+        .ban-input {
+            flex: 1; min-width: 250px; padding: 12px 20px;
+            border: 2px solid rgba(255, 82, 82, 0.5); background: rgba(0, 0, 0, 0.4);
+            color: #fff; border-radius: 10px; font-size: 1rem; outline: none;
+        }
+        .ban-input:focus { border-color: #ff5252; box-shadow: 0 0 20px rgba(255, 82, 82, 0.3); }
+        .ban-reason-input { flex: 2; min-width: 300px; }
+        .banned-list-container { max-height: 300px; overflow-y: auto; margin-top: 20px; }
+        .banned-player-card {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 82, 82, 0.3);
+            border-radius: 12px; padding: 15px 20px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;
+        }
+        .banned-player-card:hover { border-color: rgba(255, 82, 82, 0.6); transform: translateX(5px); }
+        .banned-player-info { flex: 1; }
+        .banned-player-name { font-size: 1.1rem; font-weight: 600; color: #ff5252; margin-bottom: 5px; }
+        .banned-player-meta { font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+        .banned-player-reason { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); margin-top: 5px; font-style: italic; }
+        .btn-unban-player {
+            padding: 8px 16px; background: rgba(105, 240, 174, 0.2); color: var(--green-primary);
+            border: 1px solid var(--green-primary); border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-unban-player:hover { background: var(--green-primary); color: #1a0b2e; }
+
+        .role-display {
+            display: inline-block; padding: 2px 6px; border-radius: 12px; font-size: 0.7rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 5px;
+        }
+        .role-display.buyer { background: #ff69b4; color: #1a0b2e; }
+        .role-display.rich-buyer { background: #69f0ae; color: #1a0b2e; }
+        .role-display.rich { background: linear-gradient(135deg, #ff69b4, #69f0ae); color: #fff; }
+        .role-display.friend { background: #9c27b0; color: #fff; }
+
+        .chat-role-display {
+            display: inline-block; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 5px; vertical-align: middle;
+        }
+        .chat-role-display.buyer { background: #ff69b4; color: #1a0b2e; }
+        .chat-role-display.rich-buyer { background: #69f0ae; color: #1a0b2e; }
+        .chat-role-display.rich { background: linear-gradient(135deg, #ff69b4, #69f0ae); color: #fff; }
+        .chat-role-display.friend { background: #9c27b0; color: #fff; }
+
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0; }
+        .particle {
+            position: absolute; width: 4px; height: 4px; background: var(--pink-primary);
+            border-radius: 50%; opacity: 0.3; animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.3; } 90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        header { text-align: center; margin-bottom: 30px; padding: 40px 20px 20px; }
+        .main-title {
+            font-family: 'Cinzel', serif; font-size: 5rem; font-weight: 800;
+            background: linear-gradient(180deg, #fff 0%, var(--pink-primary) 50%, var(--green-primary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 105, 180, 0.5); letter-spacing: 8px;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 20px rgba(255,105,180,0.4)); }
+            to { filter: drop-shadow(0 0 40px rgba(105,240,174,0.8)); }
+        }
+        .shop-owners {
+            font-family: 'Cinzel', serif; font-size: 1.2rem; color: rgba(255, 255, 255, 0.8);
+            margin-top: 15px; letter-spacing: 3px; text-transform: uppercase;
+            background: linear-gradient(90deg, var(--pink-primary), #fff, var(--green-primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-size: 200% auto; animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .location-bar {
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--pink-primary); padding: 12px;
+            text-align: center; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .location-text {
+            font-family: 'Cinzel', serif; color: var(--pink-primary); font-size: 1.1rem;
+            letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .login-section {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 105, 180, 0.1); border-radius: 20px;
+            padding: 30px; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto;
+        }
+        .login-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .login-form input {
+            padding: 15px 20px; border: 2px solid rgba(255, 105, 180, 0.2);
+            background: rgba(0, 0, 0, 0.4); color: #fff; border-radius: 12px;
+            font-size: 1rem; outline: none; transition: all 0.3s;
+        }
+        .login-form input:focus { border-color: var(--pink-primary); box-shadow: 0 0 20px rgba(255, 105, 180, 0.2); }
+        .user-info { display: none; text-align: center; padding: 20px 0; }
+        .user-info.show { display: block; }
+        .welcome-text { color: rgba(255, 255, 255, 0.8); font-size: 1.1rem; margin-bottom: 20px; }
+        .username { color: var(--pink-primary); font-weight: 700; font-size: 1.3rem; }
+        .user-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+        button {
+            padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 0.95rem; font-weight: 600; transition: all 0.3s;
+            text-transform: uppercase; letter-spacing: 1px; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--pink-primary) 0%, var(--green-primary) 100%);
+            color: #1a0b2e; box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 105, 180, 0.5); }
+        .btn-chat {
+            background: linear-gradient(135deg, #ff69b4 0%, #c71585 100%); color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+        }
+        .btn-chat:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 105, 180, 0.5); }
+        .btn-bulk {
+            background: linear-gradient(135deg, #69f0ae 0%, #2e7d32 100%); color: #1a0b2e;
+            box-shadow: 0 4px 15px rgba(105, 240, 174, 0.3);
+        }
+        .btn-bulk:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(105, 240, 174, 0.5); }
+        .btn-support {
+            background: linear-gradient(135deg, #ff69b4 0%, #69f0ae 100%); color: #1a0b2e;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+        }
+        .btn-support:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 105, 180, 0.5); }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff5252 0%, #b33939 100%); color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 82, 82, 0.3);
+        }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 82, 82, 0.5); }
+
+        .admin-controls, .mod-controls, .role-manager, .support-list, .banned-users, .admin-bulk-orders, .bulk-logs, .order-logs {
+            display: none; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+            padding: 30px; margin-bottom: 40px; animation: slideDown 0.5s ease;
+        }
+        .admin-controls.show, .mod-controls.show, .role-manager.show, .support-list.show, .banned-users.show, .admin-bulk-orders.show, .bulk-logs.show, .order-logs.show { display: block !important; }
+
+        .admin-controls { background: rgba(255, 105, 180, 0.05); border: 1px solid rgba(255, 105, 180, 0.2); }
+        .admin-title {
+            font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--pink-primary);
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .add-item-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        label { color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        select, input[type="text"], input[type="number"] {
+            padding: 12px 15px; border: 2px solid rgba(255, 105, 180, 0.2);
+            background: rgba(0, 0, 0, 0.4); color: #fff; border-radius: 10px;
+            outline: none; font-size: 1rem; font-family: 'Inter', sans-serif;
+        }
+        select:focus, input:focus { border-color: var(--pink-primary); box-shadow: 0 0 15px rgba(255, 105, 180, 0.2); }
+
+        .mod-controls { background: rgba(105, 240, 174, 0.05); border: 1px solid rgba(105, 240, 174, 0.2); }
+        .mod-title {
+            font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--green-primary);
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .mod-badge {
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            color: #1a0b2e; padding: 4px 12px; border-radius: 6px;
+            font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .role-manager { background: rgba(255, 105, 180, 0.05); border: 1px solid rgba(105, 240, 174, 0.3); }
+        .role-manager-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 105, 180, 0.2);
+        }
+        .role-manager-header h3 { font-family: 'Cinzel', serif; color: var(--pink-primary); font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .close-role-panel {
+            background: rgba(255, 82, 82, 0.2); color: #ff5252; border: 2px solid rgba(255, 82, 82, 0.5);
+            width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+            font-size: 1.3rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+        }
+        .close-role-panel:hover { background: rgba(255, 82, 82, 0.4); color: #fff; transform: rotate(90deg); }
+        .role-user-selector { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .role-user-select {
+            padding: 10px 15px; border: 2px solid rgba(255, 105, 180, 0.3);
+            background: rgba(0, 0, 0, 0.5); color: #fff; border-radius: 8px; font-size: 1rem; min-width: 200px;
+        }
+        .role-assign-btn {
+            padding: 10px 20px; background: linear-gradient(135deg, var(--pink-primary) 0%, var(--green-primary) 100%);
+            color: #1a0b2e; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s;
+        }
+        .role-assign-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3); }
+        .user-list-container { max-height: 400px; overflow-y: auto; margin-top: 20px; }
+        .user-card {
+            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 20px; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;
+        }
+        .user-card:hover { transform: translateX(5px); border-color: rgba(255, 105, 180, 0.3); }
+        .user-name { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px; }
+        .user-roles { display: flex; gap: 8px; flex-wrap: wrap; }
+        .role-tag-display {
+            padding: 4px 10px; border-radius: 15px; font-size: 0.75rem;
+            font-weight: 600; text-transform: uppercase;
+        }
+        .role-tag-display.buyer { background: #ff69b4; color: #1a0b2e; }
+        .role-tag-display.rich-buyer { background: #69f0ae; color: #1a0b2e; }
+        .role-tag-display.rich { background: linear-gradient(135deg, #ff69b4, #69f0ae); color: #fff; }
+        .role-tag-display.friend { background: #9c27b0; color: #fff; }
+        .role-remove-btn {
+            margin-left: 8px; background: rgba(255, 82, 82, 0.8); color: #fff;
+            border: none; border-radius: 50%; width: 18px; height: 18px;
+            font-size: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .role-remove-btn:hover { background: #ff5252; }
+
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .item-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 25px; display: flex; justify-content: space-between;
+            align-items: center; transition: all 0.4s; position: relative; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .item-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 105, 180, 0.1);
+            border-color: rgba(255, 105, 180, 0.3);
+        }
+        .item-name { font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 12px; color: #fff; }
+        .tags { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tag {
+            padding: 6px 16px; border-radius: 20px; font-size: 0.85rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tag-item { background: linear-gradient(135deg, var(--pink-primary), #c71585); color: #fff; }
+        .tag-floor { background: linear-gradient(135deg, #ff69b4, #69f0ae); color: #1a0b2e; }
+        .tag-rarity { background: linear-gradient(135deg, var(--accent-red), #c62828); color: #fff; }
+        .price {
+            font-family: 'Cinzel', serif; font-size: 2rem; font-weight: 700;
+            background: linear-gradient(180deg, var(--pink-light) 0%, var(--green-primary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stock-status {
+            padding: 8px 20px; border-radius: 25px; font-size: 0.95rem; font-weight: 600;
+            border: 2px solid; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .stock-status:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .in-stock { background: rgba(105, 240, 174, 0.15); color: var(--green-primary); border-color: var(--green-primary); }
+        .out-of-stock { background: rgba(255, 82, 82, 0.15); color: var(--accent-red); border-color: var(--accent-red); }
+        .limited { background: rgba(255, 105, 180, 0.15); color: #ff69b4; border-color: #ff69b4; }
+        .delete-btn {
+            position: absolute; top: 15px; right: 15px; background: rgba(255, 82, 82, 0.9);
+            color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; display: none; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem; transition: all 0.3s;
+        }
+        .item-card:hover .delete-btn { display: flex; }
+        .delete-btn:hover { background: #ff1744; transform: scale(1.1) rotate(90deg); }
+        .add-to-bulk {
+            margin-top: 12px; padding: 10px 20px; background: rgba(255, 105, 180, 0.2);
+            border: 2px solid #ff69b4; color: #fff; border-radius: 25px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .add-to-bulk:hover { background: #ff69b4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4); }
+        .add-to-bulk.added { background: var(--green-primary); border-color: var(--green-primary); color: #1a0b2e; }
+
+        .tabs-container { margin-bottom: 30px; border-bottom: 1px solid rgba(255, 105, 180, 0.1); padding-bottom: 20px; }
+        .tabs { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .tab {
+            padding: 12px 28px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
+            color: rgba(255, 255, 255, 0.7); cursor: pointer; transition: all 0.3s;
+            font-weight: 500; letter-spacing: 1px; position: relative; overflow: hidden;
+        }
+        .tab.active {
+            color: #1a0b2e; border-color: var(--pink-primary);
+            transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255, 105, 180, 0.3);
+        }
+        .tab.active::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--pink-primary), var(--green-primary)); z-index: -1;
+        }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(100px); background: rgba(0, 0, 0, 0.9);
+            color: #fff; padding: 16px 32px; border-radius: 50px;
+            border: 1px solid var(--pink-primary); font-weight: 600; opacity: 0;
+            transition: all 0.4s; z-index: 9999; backdrop-filter: blur(10px);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: var(--green-primary); color: var(--green-primary); }
+        .toast.error { border-color: var(--accent-red); color: var(--accent-red); }
+
+        .chat-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .chat-overlay.show { display: flex; }
+        .chat-container {
+            background: var(--chat-bg); border: 1px solid rgba(255, 105, 180, 0.2);
+            border-radius: 20px; width: 90%; max-width: 600px; max-height: 80vh;
+            display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .chat-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-title { display: flex; align-items: center; gap: 10px; font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--pink-primary); }
+        .chat-type-badge { background: rgba(255, 255, 255, 0.1); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .chat-type-badge.support { background: rgba(255, 105, 180, 0.3); color: #ff69b4; }
+        .close-chat {
+            background: none; border: none; color: rgba(255, 255, 255, 0.5);
+            font-size: 1.5rem; cursor: pointer; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s;
+        }
+        .close-chat:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; max-height: 400px; }
+        .chat-input-area { display: flex; padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); gap: 10px; }
+        .chat-input {
+            flex: 1; padding: 12px 20px; border: 2px solid rgba(255, 105, 180, 0.2);
+            background: rgba(0, 0, 0, 0.4); color: #fff; border-radius: 25px;
+            outline: none; font-size: 1rem; font-family: 'Inter', sans-serif;
+        }
+        .chat-input:focus { border-color: var(--pink-primary); box-shadow: 0 0 20px rgba(255, 105, 180, 0.2); }
+        .chat-input:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-send {
+            padding: 12px 24px; background: linear-gradient(135deg, var(--pink-primary) 0%, var(--green-primary) 100%);
+            color: #1a0b2e; border: none; border-radius: 25px; cursor: pointer;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s;
+        }
+        .btn-send:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3); }
+        .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+        .muted-banner {
+            background: rgba(255, 82, 82, 0.1); border: 1px solid rgba(255, 82, 82, 0.3);
+            color: #ff5252; padding: 10px 20px; margin: 10px 20px; border-radius: 8px;
+            text-align: center; font-weight: 600;
+        }
+        .chat-message { margin-bottom: 15px; animation: slideDown 0.3s ease; }
+        .chat-message.own { text-align: right; }
+        .chat-message.other { text-align: left; }
+        .chat-message.deleted { opacity: 0.5; }
+        .chat-message.owner-msg .message-author { color: var(--pink-primary) !important; font-weight: 800; }
+        .chat-message.mod-msg .message-author { color: var(--green-primary) !important; font-weight: 800; }
+        .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .message-author { font-weight: 600; color: var(--pink-primary); font-size: 0.9rem; }
+        .message-time { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; }
+        .message-content {
+            background: rgba(255, 255, 255, 0.05); padding: 10px 15px;
+            border-radius: 15px; display: inline-block; max-width: 80%; word-wrap: break-word;
+        }
+        .chat-message.own .message-content { background: rgba(255, 105, 180, 0.1); border: 1px solid rgba(255, 105, 180, 0.2); }
+        .message-actions { display: flex; gap: 5px; margin-top: 5px; }
+        .msg-btn {
+            padding: 4px 8px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px; cursor: pointer; font-size: 0.7rem; transition: all 0.3s;
+        }
+        .msg-btn:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        .msg-btn-delete:hover { background: rgba(255, 82, 82, 0.3); border-color: #ff5252; color: #ff5252; }
+        .msg-btn-mute:hover { background: rgba(255, 105, 180, 0.3); border-color: #ff69b4; color: #ff69b4; }
+        .msg-btn-ban:hover { background: rgba(183, 28, 28, 0.3); border-color: #b71c1c; color: #b71c1c; }
+
+        .order-view-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px); z-index: 1001; align-items: center; justify-content: center;
+        }
+        .order-view-modal.show { display: flex; }
+        .order-view-container {
+            background: var(--chat-bg); border: 1px solid rgba(255, 105, 180, 0.2);
+            border-radius: 20px; width: 90%; max-width: 800px; max-height: 80vh;
+            display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .order-view-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .order-view-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .btn-confirm-order {
+            padding: 12px 24px; background: linear-gradient(135deg, var(--green-primary) 0%, #2e7d32 100%);
+            color: #1a0b2e; border: none; border-radius: 12px; cursor: pointer;
+            font-size: 1rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; transition: all 0.3s; margin-top: 20px; width: 100%;
+        }
+        .btn-confirm-order:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(105, 240, 174, 0.3); }
+        .btn-remove {
+            padding: 6px 12px; background: rgba(255, 82, 82, 0.2); color: #ff5252;
+            border: 1px solid #ff5252; border-radius: 6px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-remove:hover { background: #ff5252; color: #fff; }
+        .bulk-quantity-selector { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
+        .bulk-type-select {
+            flex: 1; padding: 10px 15px; border: 2px solid rgba(255, 105, 180, 0.5);
+            background: rgba(0, 0, 0, 0.3); color: #fff; border-radius: 8px; font-size: 1rem;
+        }
+        .bulk-quantity-input {
+            width: 80px; padding: 10px; border: 2px solid rgba(255, 105, 180, 0.5);
+            background: rgba(0, 0, 0, 0.3); color: #fff; border-radius: 8px;
+            text-align: center; font-weight: bold;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--green-primary) 0%, #2e7d32 100%);
+            color: #1a0b2e; padding: 12px 24px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s;
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(105, 240, 174, 0.3); }
+
+        .support-chat-item, .banned-item {
+            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 15px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; transition: all 0.3s;
+        }
+        .support-chat-item:hover, .banned-item:hover { border-color: rgba(255, 105, 180, 0.3); transform: translateX(5px); }
+        .support-user-info h4, .banned-name { color: #fff; font-weight: 600; margin-bottom: 5px; }
+        .support-user-info p { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; }
+        .support-meta { text-align: right; }
+        .support-time { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; margin-bottom: 8px; }
+        .btn-close-ticket, .btn-unban, .btn-unmute {
+            padding: 6px 12px; background: rgba(255, 82, 82, 0.2); color: #ff5252;
+            border: 1px solid #ff5252; border-radius: 6px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-close-ticket:hover, .btn-unban:hover, .btn-unmute:hover { background: #ff5252; color: #fff; }
+
+        .bulk-order-card {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 105, 180, 0.3);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px; transition: all 0.3s;
+        }
+        .bulk-order-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2); }
+        .bulk-order-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .bulk-order-user { font-size: 1.1rem; font-weight: 600; color: #fff; }
+        .bulk-order-time { color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; }
+        .bulk-order-details { margin-bottom: 15px; }
+        .bulk-order-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .bulk-item-name { font-weight: 500; color: #fff; }
+        .bulk-item-qty { color: #ffb6c1; font-size: 0.9rem; }
+        .bulk-order-total { font-size: 1.2rem; font-weight: 700; color: var(--pink-primary); text-align: right; margin-bottom: 15px; }
+        .btn-view-order, .btn-completed {
+            padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-view-order { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-view-order:hover { background: rgba(255, 255, 255, 0.2); }
+        .btn-completed { background: linear-gradient(135deg, var(--green-primary) 0%, #2e7d32 100%); color: #1a0b2e; }
+        .btn-completed:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(105, 240, 174, 0.3); }
+
+        .log-entry {
+            background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--pink-primary);
+        }
+        .log-customer { font-weight: 600; color: var(--pink-primary); margin-bottom: 8px; }
+        .log-details { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; line-height: 1.5; }
+        .log-details div { margin-bottom: 4px; }
+
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.5rem; letter-spacing: 4px; }
+            .shop-owners { font-size: 0.9rem; }
+            .items-grid { grid-template-columns: 1fr; }
+            .login-form { grid-template-columns: 1fr; }
+            .user-info { flex-direction: column; text-align: center; }
+            .role-user-selector { flex-direction: column; align-items: stretch; }
+            .add-item-form { grid-template-columns: 1fr; }
+            .user-actions { flex-direction: column; }
+            .user-actions button { width: 100%; }
+            .maintenance-title { font-size: 2rem; }
+            .maintenance-text { font-size: 1rem; }
+            .announcement-content { flex-direction: column; text-align: center; }
+            .ban-input-group { flex-direction: column; }
+            .ban-input, .ban-reason-input { min-width: 100%; }
+        }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stock-editor { margin-top: 10px; }
+        .stock-select {
+            width: 100%; padding: 8px 12px; border: 2px solid rgba(255, 105, 180, 0.3);
+            background: rgba(0, 0, 0, 0.5); color: #fff; border-radius: 8px; font-size: 0.9rem; cursor: pointer;
+        }
+        .stock-select.in { border-color: var(--green-primary); }
+        .stock-select.out { border-color: var(--accent-red); }
+        .stock-select.limited { border-color: #ff69b4; }
+    </style>
+</head>
+<body>
+    <!-- MAINTENANCE MODE OVERLAY -->
+    <div id="maintenanceOverlay" class="maintenance-overlay">
+        <div class="maintenance-icon">🔧</div>
+        <h1 class="maintenance-title">Under Maintenance</h1>
+        <p class="maintenance-text">We'll be back soon! The shop is currently undergoing maintenance to bring you an even better experience.</p>
+        <div class="maintenance-spinner"></div>
+    </div>
+
+    <!-- ANNOUNCEMENT BANNER -->
+    <div id="announcementBanner" class="announcement-banner">
+        <div class="announcement-content">
+            <span class="announcement-icon">📢</span>
+            <span class="announcement-text" id="announcementText">Welcome to The Burrow!</span>
+        </div>
+        <button class="announcement-close" onclick="closeAnnouncement()" title="Dismiss">×</button>
+    </div>
+
+    <!-- Location Bar -->
+    <div class="location-bar">
+        <div class="location-text">
+            <span class="location-icon">📌</span>
+            <span>Shop is at <strong>122 49 -42</strong></span>
+        </div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1 class="main-title">THE BURROW</h1>
+            <div class="shop-owners">Hol1zy's Shop</div>
+            <p style="color: rgba(255,255,255,0.5); margin-top: 10px; letter-spacing: 4px; text-transform: uppercase;">Premium Minecraft Emporium</p>
+        </header>
+
+        <!-- LOGIN SECTION -->
+        <div class="login-section" id="loginSection">
+            <div id="loginForm" class="login-form">
+                <input type="text" id="usernameInput" placeholder="Username" required>
+                <input type="text" id="discordInput" placeholder="Discord (e.g., user#1234)" required>
+                <input type="text" id="minecraftInput" placeholder="Minecraft Username" required>
+                <button type="button" class="btn-primary" id="enterShopBtn" onclick="login()">Enter Shop</button>
+            </div>
+            <div id="userInfo" class="user-info">
+                <div class="welcome-text">
+                    Welcome, <span class="username" id="currentUser"></span>
+                </div>
+                <div class="user-actions">
+                    <button class="btn-chat" onclick="openGlobalChat()">💬 Global Chat</button>
+                    <button class="btn-support" onclick="openSupportChat()">🎫 Support Chat</button>
+                    <button class="btn-bulk" onclick="openBulkModal()">📦 My Bulk Order</button>
+                    <button class="btn-danger" onclick="logout()">Exit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANNOUNCEMENT CONTROLS (HO121 only) -->
+        <div id="announcementControls" class="announcement-controls">
+            <div class="announcement-controls-header">
+                <span>📢</span>
+                <span>Announcement & Maintenance Controls</span>
+            </div>
+            <div class="announcement-input-group">
+                <input type="text" class="announcement-input" id="announcementInput" placeholder="Enter announcement message...">
+                <button class="btn-primary" onclick="postAnnouncement()">Post Announcement</button>
+                <button class="btn-danger" onclick="clearAnnouncement()">Clear</button>
+            </div>
+            <div class="maintenance-toggle">
+                <span class="toggle-label" id="maintenanceLabel">Maintenance Mode:</span>
+                <div class="toggle-switch" id="maintenanceToggle" onclick="toggleMaintenance()"></div>
+                <span class="toggle-label maintenance-off" id="maintenanceStatus">OFF</span>
+            </div>
+        </div>
+
+        <!-- BANNED PLAYERS MANAGEMENT PANEL (HO121 only) -->
+        <div id="bannedPlayersPanel" class="banned-players-panel">
+            <div class="banned-panel-header">
+                <span>🚫</span>
+                <span>Banned Players Management</span>
+            </div>
+            <div class="ban-input-group">
+                <input type="text" class="ban-input" id="banUsernameInput" placeholder="Enter username to ban...">
+                <input type="text" class="ban-input ban-reason-input" id="banReasonInput" placeholder="Ban reason (optional)...">
+                <button class="btn-danger" onclick="banPlayer()">Ban Player</button>
+            </div>
+            <div class="banned-list-container" id="bannedPlayersListContainer">
+                <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No banned players</p>
+            </div>
+        </div>
+
+        <!-- ROLE MANAGER PANEL (HO121 only) -->
+        <div id="roleManagerPanel" class="role-manager">
+            <div class="role-manager-header">
+                <h3>👑 Role Manager</h3>
+                <button class="close-role-panel" onclick="toggleRolePanel()">×</button>
+            </div>
+            <div class="role-user-selector">
+                <select class="role-user-select" id="roleUserSelect">
+                    <option value="">Select User...</option>
+                </select>
+                <select class="role-user-select" id="roleTypeSelect">
+                    <option value="">Select Role...</option>
+                    <option value="buyer">[Buyer] - Pink</option>
+                    <option value="rich-buyer">[Rich Buyer] - Green</option>
+                    <option value="rich">[🤑Really Rich] - Gradient</option>
+                    <option value="friend">[Friend] - Purple</option>
+                </select>
+                <button class="role-assign-btn" onclick="assignRole()">Assign Role</button>
+            </div>
+            <div class="user-list-container" id="userListContainer">
+                <!-- Users will appear here -->
+            </div>
+        </div>
+
+        <!-- ADMIN CONTROLS (HO121 only) -->
+        <div id="adminControls" class="admin-controls">
+            <div class="admin-title">
+                <span>👑</span>
+                <span>Shopkeeper's Controls</span>
+            </div>
+            <div class="add-item-form">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g., Netherite Sword">
+                </div>
+                <div class="form-group">
+                    <label>Price (single item)</label>
+                    <input type="text" id="itemPrice" placeholder="e.g., 25 d">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="itemType">
+                        <option value="item">Item</option>
+                        <option value="block">Block</option>
+                        <option value="tool">Tool</option>
+                        <option value="armor">Armor</option>
+                        <option value="weapon">Weapon</option>
+                        <option value="rare">Rare</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Stock Status</label>
+                    <select id="itemStock">
+                        <option value="in">In Stock</option>
+                        <option value="out">Out of Stock</option>
+                        <option value="limited">Limited</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: end;">
+                    <button class="btn-success" onclick="addItem()" style="width: 100%;">Add to Shop</button>
+                </div>
+                <div class="form-group" style="display: flex; align-items: end;">
+                    <button class="btn-primary" onclick="toggleRolePanel()" style="width: 100%; background: linear-gradient(135deg, #ff69b4, #69f0ae);">👑 Role Manager</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOD CONTROLS (mod121 only) -->
+        <div id="modControls" class="mod-controls">
+            <div class="mod-title">
+                <span>🛡️</span>
+                <span>Moderator Panel <span class="mod-badge">[MOD]</span></span>
+            </div>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="btn-chat" onclick="openGlobalChat()">💬 Global Chat</button>
+                <button class="btn-support" onclick="openSupportChat()">🎫 Support Chat</button>
+                <button class="btn-bulk" onclick="openBulkModal()">📦 My Bulk Order</button>
+            </div>
+        </div>
+
+        <!-- SUPPORT CHATS LIST (Admin/Mod only) -->
+        <div id="supportList" class="support-list">
+            <div class="support-list-header">
+                <span>🎫</span>
+                <span>Support Tickets</span>
+            </div>
+            <div id="supportChatsContainer">
+                <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 40px;">No support tickets yet...</p>
+            </div>
+        </div>
+
+        <!-- BANNED USERS (Admin/Mod only) -->
+        <div id="bannedUsers" class="banned-users">
+            <div class="banned-header">
+                <span>🚫</span>
+                <span>Banned Users</span>
+            </div>
+            <div id="bannedList">
+                <p style="color: rgba(255,255,255,0.5); text-align: center;">No banned users</p>
+            </div>
+        </div>
+
+        <!-- ADMIN BULK ORDERS (Admin/Mod only) -->
+        <div id="adminBulkOrders" class="admin-bulk-orders">
+            <div class="admin-bulk-header">
+                <div class="admin-bulk-title">📦 Customer Bulk Orders</div>
+                <button class="btn-danger" onclick="clearAllOrders()">Clear All Orders</button>
+            </div>
+            <div id="adminBulkList" class="admin-bulk-list">
+                <div class="empty-orders">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📭</div>
+                    <p>No bulk orders yet...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDER LOGS (HO121 Only) -->
+        <div id="orderLogs" class="order-logs">
+            <div class="logs-header">
+                <span>📋</span>
+                <span>Order Logs</span>
+            </div>
+            <div id="orderLogsContainer">
+                <p style="color: rgba(255,255,255,0.5); text-align: center;">No order logs yet...</p>
+            </div>
+        </div>
+
+        <!-- BULK ORDER LOGS (HO121 Only) -->
+        <div id="bulkLogs" class="bulk-logs">
+            <div class="logs-header">
+                <span>📋</span>
+                <span>Bulk Order History</span>
+            </div>
+            <div id="logsContainer">
+                <p style="color: rgba(255,255,255,0.5); text-align: center;">No completed orders yet...</p>
+            </div>
+        </div>
+
+        <!-- Items Grid -->
+        <div id="itemsContainer" class="items-grid"></div>
+    </div>
+
+    <!-- Chat Overlays -->
+    <div id="globalChatOverlay" class="chat-overlay">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span>💬</span>
+                    <span>Global Chat</span>
+                    <span class="chat-type-badge">Public</span>
+                </div>
+                <button class="close-chat" onclick="closeChat()">×</button>
+            </div>
+            <div class="chat-messages" id="globalMessages"></div>
+            <div id="globalMutedBanner" class="muted-banner" style="display: none;">
+                🔇 You are muted and cannot send messages
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="globalInput" placeholder="Type your message..." maxlength="500">
+                <button class="btn-send" id="globalSendBtn" onclick="sendGlobalMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="supportChatOverlay" class="chat-overlay">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span>🎫</span>
+                    <span id="supportChatTitle">Support Chat</span>
+                    <span class="chat-type-badge support">Private</span>
+                </div>
+                <button class="close-chat" onclick="closeChat()">×</button>
+            </div>
+            <div class="chat-messages" id="supportMessages"></div>
+            <div id="supportMutedBanner" class="muted-banner" style="display: none;">
+                🔇 You are muted and cannot send messages
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="supportInput" placeholder="Describe your issue or question..." maxlength="500">
+                <button class="btn-send" id="supportSendBtn" onclick="sendSupportMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Order Modal -->
+    <div id="bulkModal" class="chat-overlay">
+        <div class="chat-container" style="max-width: 900px;">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span>📦</span>
+                    <span>Your Bulk Order</span>
+                </div>
+                <button class="close-chat" onclick="closeBulkModal()">×</button>
+            </div>
+            <div style="padding: 30px; overflow-y: auto; flex: 1;">
+                <div class="how-to-order" style="background: rgba(255, 105, 180, 0.1); border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; padding: 25px; margin-bottom: 30px;">
+                    <h3 style="color: #ffb6c1; margin-bottom: 15px;">📋 How to Order</h3>
+                    <ol style="margin-left: 20px; color: rgba(255, 255, 255, 0.8); line-height: 1.8;">
+                        <li>Add items to your bulk order using the "Add to Bulk" buttons in the shop</li>
+                        <li>Choose between <strong>Items</strong>, <strong>Stacks</strong>, or <strong>Shulkers</strong></li>
+                        <li>Enter the quantity you want</li>
+                        <li><strong>1 Shulker = 27 stacks</strong> of the item</li>
+                        <li><strong>1 Stack = 64 items</strong> (or 16 for some items)</li>
+                        <li>Review your order - prices are automatically calculated</li>
+                        <li>Click <strong>"Submit Order"</strong> to send it to the shopkeeper</li>
+                    </ol>
+                </div>
+                <div id="bulkModalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order View Modal -->
+    <div id="orderViewModal" class="order-view-modal">
+        <div class="order-view-container">
+            <div class="order-view-header">
+                <div class="chat-title">
+                    <span>📋</span>
+                    <span>Order Details</span>
+                </div>
+                <button class="close-chat" onclick="closeOrderView()">×</button>
+            </div>
+            <div class="order-view-content" id="orderViewContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        /* DATA & STATE MANAGEMENT */
+        let items = JSON.parse(localStorage.getItem('burrowItems')) || [
+            { id: 1, name: "Elytra", type: "item", location: null, price: "40 d", stock: "in" },
+            { id: 2, name: "Heavy Core", type: "item", location: null, price: "18 db", stock: "out" }
+        ];
+        let currentUser = localStorage.getItem('burrowUser') || null;
+        let userDiscord = localStorage.getItem('burrowDiscord') || '';
+        let userMinecraft = localStorage.getItem('burrowMinecraft') || '';
+        let userBulkOrder = JSON.parse(localStorage.getItem('burrowBulkOrder')) || [];
+        let submittedOrders = JSON.parse(localStorage.getItem('burrowSubmittedOrders')) || [];
+        let completedOrders = JSON.parse(localStorage.getItem('burrowCompletedOrders')) || [];
+        let currentFilter = 'all';
+        let globalMessages = JSON.parse(localStorage.getItem('burrowGlobalChat')) || [];
+        let supportChats = JSON.parse(localStorage.getItem('burrowSupportChats')) || {};
+        let bannedUsers = JSON.parse(localStorage.getItem('burrowBanned')) || [];
+        let bannedPlayersList = JSON.parse(localStorage.getItem('burrowBannedPlayers')) || [];
+        let mutedUsers = JSON.parse(localStorage.getItem('burrowMuted')) || [];
+        let userRoles = JSON.parse(localStorage.getItem('burrowUserRoles')) || {};
+        let allUsers = JSON.parse(localStorage.getItem('burrowAllUsers')) || [];
+        let bulkOrderLogs = JSON.parse(localStorage.getItem('burrowBulkLogs')) || [];
+        let orderLogs = JSON.parse(localStorage.getItem('burrowOrderLogs')) || [];
+        let announcement = JSON.parse(localStorage.getItem('burrowAnnouncement')) || { text: '', active: false };
+        let maintenanceMode = JSON.parse(localStorage.getItem('burrowMaintenance')) || false;
+        let currentViewingOrder = null;
+        let currentChat = null;
+        let currentSupportUser = null;
+        let isStaffViewingSupport = false;
+
+        /* INITIALIZATION */
+        window.onload = () => {
+            createParticles();
+            setupEventListeners();
+            checkMaintenanceMode();
+            checkAnnouncement();
+            if (currentUser) restoreLogin();
+            renderItems();
+            setupStorageListener();
+        };
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            container.innerHTML = '';
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 20 + 's';
+                p.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(p);
+            }
+        }
+
+        function setupEventListeners() {
+            const loginBtn = document.getElementById('enterShopBtn');
+            if (loginBtn) loginBtn.addEventListener('click', login);
+            
+            ['usernameInput', 'discordInput', 'minecraftInput'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+            });
+
+            const globalInput = document.getElementById('globalInput');
+            if (globalInput) globalInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendGlobalMessage(); });
+
+            const supportInput = document.getElementById('supportInput');
+            if (supportInput) supportInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendSupportMessage(); });
+        }
+
+        /* REAL-TIME SYNC USING STORAGE EVENTS */
+        function setupStorageListener() {
+            window.addEventListener('storage', (e) => {
+                if (!e.key) return;
+                
+                const key = e.key;
+                const newValue = e.newValue ? JSON.parse(e.newValue) : null;
+                
+                switch(key) {
+                    case 'burrowGlobalChat':
+                        globalMessages = newValue || [];
+                        if (currentChat === 'global') {
+                            renderGlobalMessages();
+                            scrollToBottom('globalMessages');
+                        }
+                        break;
+                    case 'burrowSupportChats':
+                        supportChats = newValue || {};
+                        if (currentChat === 'support') {
+                            renderSupportMessages();
+                            scrollToBottom('supportMessages');
+                        }
+                        if (currentUser === 'HO121' || currentUser === 'mod121') {
+                            renderSupportList();
+                        }
+                        break;
+                    case 'burrowSubmittedOrders':
+                        submittedOrders = newValue || [];
+                        if (currentUser === 'HO121' || currentUser === 'mod121') renderAdminOrders();
+                        break;
+                    case 'burrowItems':
+                        items = newValue || [];
+                        renderItems();
+                        break;
+                    case 'burrowUserRoles':
+                        userRoles = newValue || {};
+                        renderItems();
+                        if (currentChat === 'global') renderGlobalMessages();
+                        if (currentChat === 'support') renderSupportMessages();
+                        break;
+                    case 'burrowAnnouncement':
+                        announcement = newValue || { text: '', active: false };
+                        checkAnnouncement();
+                        break;
+                    case 'burrowMaintenance':
+                        maintenanceMode = newValue || false;
+                        checkMaintenanceMode();
+                        break;
+                    case 'burrowBannedPlayers':
+                        bannedPlayersList = newValue || [];
+                        if (currentUser === 'HO121') renderBannedPlayersList();
+                        break;
+                    case 'burrowBanned':
+                        bannedUsers = newValue || [];
+                        if (currentUser === 'HO121' || currentUser === 'mod121') renderBannedList();
+                        break;
+                    case 'burrowMuted':
+                        mutedUsers = newValue || [];
+                        if (currentUser === 'HO121' || currentUser === 'mod121') renderBannedList();
+                        break;
+                    case 'burrowAllUsers':
+                        allUsers = newValue || [];
+                        if (currentUser === 'HO121') {
+                            updateRoleSelector();
+                            renderUserList();
+                        }
+                        break;
+                    case 'burrowBulkLogs':
+                        bulkOrderLogs = newValue || [];
+                        if (currentUser === 'HO121') renderBulkLogs();
+                        break;
+                    case 'burrowOrderLogs':
+                        orderLogs = newValue || [];
+                        if (currentUser === 'HO121') renderOrderLogs();
+                        break;
+                }
+            });
+        }
+
+        /* MAINTENANCE MODE FUNCTIONS */
+        function checkMaintenanceMode() {
+            if (currentUser === 'HO121') {
+                document.getElementById('maintenanceOverlay').classList.remove('active');
+                return;
+            }
+            const overlay = document.getElementById('maintenanceOverlay');
+            if (maintenanceMode) overlay.classList.add('active');
+            else overlay.classList.remove('active');
+        }
+
+        function toggleMaintenance() {
+            if (currentUser !== 'HO121') return;
+            maintenanceMode = !maintenanceMode;
+            localStorage.setItem('burrowMaintenance', JSON.stringify(maintenanceMode));
+            
+            const toggle = document.getElementById('maintenanceToggle');
+            const status = document.getElementById('maintenanceStatus');
+            if (maintenanceMode) {
+                toggle.classList.add('active');
+                status.textContent = 'ON';
+                status.classList.remove('maintenance-off');
+                status.classList.add('maintenance-on');
+                showToast('Maintenance mode ENABLED', 'success');
+            } else {
+                toggle.classList.remove('active');
+                status.textContent = 'OFF';
+                status.classList.remove('maintenance-on');
+                status.classList.add('maintenance-off');
+                showToast('Maintenance mode DISABLED', 'success');
+            }
+            checkMaintenanceMode();
+        }
+
+        /* ANNOUNCEMENT FUNCTIONS */
+        function checkAnnouncement() {
+            const banner = document.getElementById('announcementBanner');
+            const text = document.getElementById('announcementText');
+            if (announcement && announcement.active && announcement.text) {
+                text.textContent = announcement.text;
+                banner.classList.add('active');
+            } else banner.classList.remove('active');
+            
+            if (currentUser === 'HO121') {
+                const input = document.getElementById('announcementInput');
+                if (input) input.value = announcement.text || '';
+            }
+        }
+
+        function postAnnouncement() {
+            if (currentUser !== 'HO121') return;
+            const input = document.getElementById('announcementInput');
+            const text = input.value.trim();
+            if (!text) return showToast('Please enter an announcement message', 'error');
+            
+            announcement = { text: text, active: true, timestamp: new Date().toISOString() };
+            localStorage.setItem('burrowAnnouncement', JSON.stringify(announcement));
+            checkAnnouncement();
+            showToast('Announcement posted!', 'success');
+        }
+
+        function clearAnnouncement() {
+            if (currentUser !== 'HO121') return;
+            announcement = { text: '', active: false };
+            localStorage.setItem('burrowAnnouncement', JSON.stringify(announcement));
+            document.getElementById('announcementInput').value = '';
+            checkAnnouncement();
+            showToast('Announcement cleared', 'success');
+        }
+
+        function closeAnnouncement() {
+            document.getElementById('announcementBanner').classList.remove('active');
+            sessionStorage.setItem('announcementDismissed', 'true');
+        }
+
+        /* BANNED PLAYERS MANAGEMENT */
+        function renderBannedPlayersList() {
+            if (currentUser !== 'HO121') return;
+            const container = document.getElementById('bannedPlayersListContainer');
+            if (!bannedPlayersList || bannedPlayersList.length === 0) {
+                container.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No banned players</p>';
+                return;
+            }
+            container.innerHTML = bannedPlayersList.map(player => {
+                const bannedDate = player.bannedAt ? new Date(player.bannedAt).toLocaleDateString() : 'Unknown';
+                return `
+                    <div class="banned-player-card">
+                        <div class="banned-player-info">
+                            <div class="banned-player-name">${player.username}</div>
+                            <div class="banned-player-meta">Banned on: ${bannedDate} by ${player.bannedBy || 'Unknown'}</div>
+                            ${player.reason ? `<div class="banned-player-reason">Reason: ${player.reason}</div>` : ''}
+                        </div>
+                        <button class="btn-unban-player" onclick="unbanPlayer('${player.username}')">Unban</button>
+                    </div>`;
+            }).join('');
+        }
+
+        function banPlayer() {
+            if (currentUser !== 'HO121') return;
+            const usernameInput = document.getElementById('banUsernameInput');
+            const reasonInput = document.getElementById('banReasonInput');
+            const username = usernameInput.value.trim();
+            const reason = reasonInput.value.trim();
+            if (!username) return showToast('Please enter a username to ban', 'error');
+            if (bannedPlayersList.find(p => p.username.toLowerCase() === username.toLowerCase())) {
+                return showToast('This player is already banned', 'error');
+            }
+            const banEntry = { username: username, reason: reason, bannedAt: new Date().toISOString(), bannedBy: currentUser };
+            bannedPlayersList.push(banEntry);
+            localStorage.setItem('burrowBannedPlayers', JSON.stringify(bannedPlayersList));
+            if (!bannedUsers.includes(username.toLowerCase())) {
+                bannedUsers.push(username.toLowerCase());
+                localStorage.setItem('burrowBanned', JSON.stringify(bannedUsers));
+            }
+            usernameInput.value = '';
+            reasonInput.value = '';
+            renderBannedPlayersList();
+            showToast(`Player "${username}" has been banned`, 'success');
+        }
+
+        function unbanPlayer(username) {
+            if (currentUser !== 'HO121') return;
+            bannedPlayersList = bannedPlayersList.filter(p => p.username.toLowerCase() !== username.toLowerCase());
+            localStorage.setItem('burrowBannedPlayers', JSON.stringify(bannedPlayersList));
+            bannedUsers = bannedUsers.filter(u => u !== username.toLowerCase());
+            localStorage.setItem('burrowBanned', JSON.stringify(bannedUsers));
+            renderBannedPlayersList();
+            showToast(`Player "${username}" has been unbanned`, 'success');
+        }
+
+        /* LOGIN / LOGOUT / ROLE MANAGEMENT */
+        function restoreLogin() {
+            document.getElementById('currentUser').textContent = currentUser;
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('userInfo').classList.add('show');
+            if (currentUser === 'HO121') showStaffUI();
+            else if (currentUser === 'mod121') showModUI();
+        }
+
+        function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const discord = document.getElementById('discordInput').value.trim();
+            const minecraft = document.getElementById('minecraftInput').value.trim();
+            if (!username || !discord || !minecraft) return showToast('Please fill in all fields', 'error');
+            
+            if (bannedUsers.includes(username.toLowerCase()) || 
+                bannedPlayersList.find(p => p.username.toLowerCase() === username.toLowerCase())) {
+                return showToast('You are banned from this shop', 'error');
+            }
+            
+            currentUser = username;
+            userDiscord = discord;
+            userMinecraft = minecraft;
+            localStorage.setItem('burrowUser', currentUser);
+            localStorage.setItem('burrowDiscord', userDiscord);
+            localStorage.setItem('burrowMinecraft', userMinecraft);
+            
+            if (!allUsers.includes(currentUser)) {
+                allUsers.push(currentUser);
+                localStorage.setItem('burrowAllUsers', JSON.stringify(allUsers));
+            }
+            
+            document.getElementById('currentUser').textContent = username;
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('userInfo').classList.add('show');
+            checkMaintenanceMode();
+            
+            if (username === 'HO121') {
+                showToast('Welcome, Shopkeeper!', 'success');
+                showStaffUI();
+            } else if (username === 'mod121') {
+                showToast('Welcome, Moderator!', 'success');
+                showModUI();
+            } else {
+                showToast(`Welcome to The Burrow, ${username}!`, 'success');
+            }
+            renderItems();
+            updateRoleSelector();
+        }
+
+        function logout() {
+            if (!confirm('Exit your account? You will need to log in again.')) return;
+            currentUser = null;
+            userDiscord = '';
+            userMinecraft = '';
+            userBulkOrder = [];
+            ['burrowUser', 'burrowDiscord', 'burrowMinecraft', 'burrowBulkOrder'].forEach(k => localStorage.removeItem(k));
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('discordInput').value = '';
+            document.getElementById('minecraftInput').value = '';
+            document.getElementById('loginForm').style.display = 'grid';
+            document.getElementById('userInfo').classList.remove('show');
+            document.querySelectorAll('#adminControls, #modControls, #supportList, #bannedUsers, #adminBulkOrders, #bulkLogs, #roleManagerPanel, #orderLogs, #announcementControls, #bannedPlayersPanel').forEach(el => el.classList.remove('show'));
+            document.getElementById('maintenanceOverlay').classList.remove('active');
+            renderItems();
+            showToast('You have exited your account', 'success');
+        }
+
+        function showStaffUI() {
+            document.getElementById('adminControls').classList.add('show');
+            document.getElementById('announcementControls').classList.add('show');
+            document.getElementById('bannedPlayersPanel').classList.add('show');
+            document.getElementById('supportList').classList.add('show');
+            document.getElementById('bannedUsers').classList.add('show');
+            document.getElementById('adminBulkOrders').classList.add('show');
+            document.getElementById('bulkLogs').classList.add('show');
+            document.getElementById('orderLogs').classList.add('show');
+            document.getElementById('modControls').classList.remove('show');
+            
+            const toggle = document.getElementById('maintenanceToggle');
+            const status = document.getElementById('maintenanceStatus');
+            if (maintenanceMode) {
+                toggle.classList.add('active');
+                status.textContent = 'ON';
+                status.classList.remove('maintenance-off');
+                status.classList.add('maintenance-on');
+            } else {
+                toggle.classList.remove('active');
+                status.textContent = 'OFF';
+                status.classList.remove('maintenance-on');
+                status.classList.add('maintenance-off');
+            }
+            updateRoleSelector();
+            renderSupportList();
+            renderBannedList();
+            renderBannedPlayersList();
+            renderAdminOrders();
+            renderBulkLogs();
+            renderOrderLogs();
+            checkAnnouncement();
+        }
+
+        function showModUI() {
+            document.getElementById('modControls').classList.add('show');
+            document.getElementById('supportList').classList.add('show');
+            document.getElementById('bannedUsers').classList.add('show');
+            document.getElementById('adminBulkOrders').classList.add('show');
+            document.getElementById('adminControls').classList.remove('show');
+            document.getElementById('bulkLogs').classList.remove('show');
+            document.getElementById('orderLogs').classList.remove('show');
+            document.getElementById('roleManagerPanel').classList.remove('show');
+            document.getElementById('announcementControls').classList.remove('show');
+            document.getElementById('bannedPlayersPanel').classList.remove('show');
+            renderSupportList();
+            renderBannedList();
+            renderAdminOrders();
+        }
+
+        /* ROLE MANAGEMENT */
+        function updateRoleSelector() {
+            if (currentUser !== 'HO121') return;
+            const select = document.getElementById('roleUserSelect');
+            select.innerHTML = '<option value="">Select User...</option>';
+            allUsers.forEach(user => {
+                if (user !== 'HO121' && user !== 'mod121' && user !== currentUser) {
+                    const option = document.createElement('option');
+                    option.value = user;
+                    option.textContent = user;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function toggleRolePanel() {
+            const panel = document.getElementById('roleManagerPanel');
+            if (panel.classList.contains('show')) panel.classList.remove('show');
+            else {
+                panel.classList.add('show');
+                renderUserList();
+            }
+        }
+
+        function renderUserList() {
+            const container = document.getElementById('userListContainer');
+            let filteredUsers = allUsers.filter(user => user !== 'HO121' && user !== 'mod121' && user !== currentUser);
+            if (filteredUsers.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">No users found</p>';
+                return;
+            }
+            container.innerHTML = filteredUsers.map(user => {
+                const roles = userRoles[user] || [];
+                let roleTags = '';
+                if (roles.length > 0) {
+                    roleTags = roles.map(role => {
+                        const roleData = {
+                            buyer: { tag: '[Buyer]', class: 'buyer' },
+                            'rich-buyer': { tag: '[Rich Buyer]', class: 'rich-buyer' },
+                            rich: { tag: '[🤑Really Rich]', class: 'rich' },
+                            friend: { tag: '[Friend]', class: 'friend' }
+                        }[role];
+                        return `<span class="role-tag-display ${roleData.class}">${roleData.tag}</span>`;
+                    }).join('');
+                }
+                return `
+                    <div class="user-card" data-username="${user}">
+                        <div>
+                            <div class="user-name">${user}</div>
+                            <div class="user-roles">${roleTags}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <button class="role-remove-btn" onclick="removeAllRoles('${user}')" title="Remove all roles" style="margin-left: 0;">×</button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function assignRole() {
+            const userSelect = document.getElementById('roleUserSelect');
+            const roleSelect = document.getElementById('roleTypeSelect');
+            const username = userSelect.value;
+            const role = roleSelect.value;
+            if (!username || !role) return showToast('Please select both user and role', 'error');
+            if (!userRoles[username]) userRoles[username] = [];
+            if (userRoles[username].includes(role)) return showToast('User already has this role', 'error');
+            userRoles[username].push(role);
+            localStorage.setItem('burrowUserRoles', JSON.stringify(userRoles));
+            renderUserList();
+            renderItems();
+            showToast(`Assigned ${role} role to ${username}`, 'success');
+            userSelect.value = '';
+            roleSelect.value = '';
+        }
+
+        function removeAllRoles(username) {
+            if (currentUser !== 'HO121') return;
+            if (userRoles[username]) {
+                delete userRoles[username];
+                localStorage.setItem('burrowUserRoles', JSON.stringify(userRoles));
+                renderUserList();
+                renderItems();
+                showToast(`Removed all roles from ${username}`, 'success');
+            }
+        }
+
+        /* ITEMS MANAGEMENT */
+        function addItem() {
+            if (currentUser !== 'HO121') return;
+            const name = document.getElementById('itemName').value.trim();
+            const price = document.getElementById('itemPrice').value.trim();
+            const type = document.getElementById('itemType').value;
+            const stock = document.getElementById('itemStock').value;
+            if (!name || !price) return showToast('Name and price required', 'error');
+            const newItem = { id: Date.now(), name, type, location: null, price, stock };
+            items.push(newItem);
+            localStorage.setItem('burrowItems', JSON.stringify(items));
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+            renderItems();
+            showToast('Item added to shop', 'success');
+        }
+
+        function deleteItem(id) {
+            if (currentUser !== 'HO121') return;
+            if (!confirm('Delete this item from the shop?')) return;
+            items = items.filter(i => i.id !== id);
+            localStorage.setItem('burrowItems', JSON.stringify(items));
+            renderItems();
+            showToast('Item removed from shop', 'success');
+        }
+
+        function updateItemStock(id, newStock) {
+            if (currentUser !== 'HO121') return;
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+            item.stock = newStock;
+            localStorage.setItem('burrowItems', JSON.stringify(items));
+            renderItems();
+            showToast(`Stock updated to ${newStock}`, 'success');
+        }
+
+        function renderItems() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            let filtered = items;
+            if (currentFilter === 'in') filtered = items.filter(i => i.stock === 'in');
+            else if (currentFilter === 'out') filtered = items.filter(i => i.stock === 'out');
+            else if (currentFilter === 'limited') filtered = items.filter(i => i.stock === 'limited');
+            if (!filtered.length) {
+                container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:rgba(255,255,255,0.5)"><div style="font-size:4rem;margin-bottom:20px">📭</div><p>No items found</p></div>`;
+                return;
+            }
+            filtered.forEach(it => container.appendChild(createItemCard(it)));
+        }
+
+        function createItemCard(item) {
+            const div = document.createElement('div');
+            div.className = 'item-card';
+            const isStaff = currentUser === 'HO121';
+            const isMod = currentUser === 'mod121';
+            const isCustomer = currentUser && currentUser !== 'HO121' && currentUser !== 'mod121';
+            const userRolesDisplay = getUserRolesDisplay(currentUser);
+            let stockHtml = '';
+            if (isStaff) {
+                stockHtml = `
+                    <div class="stock-editor">
+                        <select class="stock-select ${item.stock}" onchange="updateItemStock(${item.id}, this.value)">
+                            <option value="in" ${item.stock === 'in' ? 'selected' : ''}>In Stock</option>
+                            <option value="out" ${item.stock === 'out' ? 'selected' : ''}>Out of Stock</option>
+                            <option value="limited" ${item.stock === 'limited' ? 'selected' : ''}>Limited</option>
+                        </select>
+                    </div>`;
+            }
+            div.innerHTML = `
+                <div class="item-info">
+                    <div class="item-name">${item.name} ${userRolesDisplay}</div>
+                    <div class="tags">
+                        <span class="tag tag-item">${item.type}</span>
+                        ${item.stock === 'limited' ? '<span class="tag tag-rarity">Limited</span>' : ''}
+                    </div>
+                </div>
+                <div class="item-details">
+                    <div class="price">${item.price}</div>
+                    <div class="stock-status ${item.stock === 'in' ? 'in-stock' : item.stock === 'limited' ? 'limited' : 'out-of-stock'}">
+                        ${item.stock === 'in' ? '✓ In Stock' : item.stock === 'limited' ? '⚠ Limited Stock' : '✗ Out of Stock'}
+                    </div>
+                    ${stockHtml}
+                    ${isCustomer ? `<button class="add-to-bulk" onclick="openEnhancedBulkModal(${item.id})">📦 Add to Bulk Order</button>` : ''}
+                </div>
+                ${isStaff ? `<button class="delete-btn" onclick="deleteItem(${item.id})">×</button>` : ''}
+            `;
+            return div;
+        }
+
+        function getUserRolesDisplay(username) {
+            if (username === 'mod121') return '';
+            if (!username || !userRoles[username]) return '';
+            const roles = userRoles[username];
+            if (roles.length === 0) return '';
+            return roles.map(role => {
+                const roleData = {
+                    buyer: { tag: '[Buyer]', class: 'buyer' },
+                    'rich-buyer': { tag: '[Rich Buyer]', class: 'rich-buyer' },
+                    rich: { tag: '[🤑Really Rich]', class: 'rich' },
+                    friend: { tag: '[Friend]', class: 'friend' }
+                }[role];
+                return `<span class="role-display ${roleData.class}">${roleData.tag}</span>`;
+            }).join('');
+        }
+
+        function getChatRoleDisplay(username) {
+            if (username === 'mod121') return '';
+            if (!username || !userRoles[username]) return '';
+            const roles = userRoles[username];
+            if (roles.length === 0) return '';
+            return roles.map(role => {
+                const roleData = {
+                    buyer: { tag: '[Buyer]', class: 'buyer' },
+                    'rich-buyer': { tag: '[Rich Buyer]', class: 'rich-buyer' },
+                    rich: { tag: '[🤑Really Rich]', class: 'rich' },
+                    friend: { tag: '[Friend]', class: 'friend' }
+                }[role];
+                return `<span class="chat-role-display ${roleData.class}">${roleData.tag}</span>`;
+            }).join('');
+        }
+
+        function filterItems(type) {
+            currentFilter = type;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderItems();
+        }
+
+        /* BULK ORDER SYSTEM */
+        function openEnhancedBulkModal(itemId) {
+            if (!currentUser || currentUser === 'HO121' || currentUser === 'mod121') return;
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+            const modal = document.createElement('div');
+            modal.className = 'chat-overlay show';
+            modal.style.display = 'flex';
+            modal.id = 'tempBulkModal';
+            modal.innerHTML = `
+                <div class="chat-container" style="max-width: 500px;">
+                    <div class="chat-header">
+                        <div class="chat-title">
+                            <span>📦</span>
+                            <span>Add ${item.name} to Order</span>
+                        </div>
+                        <button class="close-chat" onclick="document.getElementById('tempBulkModal').remove()">×</button>
+                    </div>
+                    <div style="padding: 30px;">
+                        <div style="margin-bottom: 20px; text-align: center;">
+                            <h3 style="color: var(--pink-primary); margin-bottom: 10px;">${item.name}</h3>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 1.1rem;">${item.price} per item</div>
+                        </div>
+                        <div class="bulk-quantity-selector">
+                            <select class="bulk-type-select" id="bulkType">
+                                <option value="items">Items</option>
+                                <option value="stacks">Stacks (64 items)</option>
+                                <option value="shulkers">Shulkers (27 stacks)</option>
+                            </select>
+                            <input type="number" class="bulk-quantity-input" id="bulkQuantity" value="1" min="1" max="64">
+                        </div>
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255,105,180,0.1); border-radius: 12px; text-align: center;">
+                            <div style="color: #ffb6c1; font-size: 1.1rem;">Total: <span id="bulkTotal">1</span> items</div>
+                        </div>
+                        <button class="btn-confirm-order" onclick="addToEnhancedBulk(${item.id})">Add to Order</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            const typeSelect = modal.querySelector('#bulkType');
+            const quantityInput = modal.querySelector('#bulkQuantity');
+            const totalDisplay = modal.querySelector('#bulkTotal');
+            function calculateTotal() {
+                const type = typeSelect.value;
+                const quantity = parseInt(quantityInput.value) || 0;
+                let total = quantity;
+                switch(type) {
+                    case 'stacks': total = quantity * 64; break;
+                    case 'shulkers': total = quantity * 27 * 64; break;
+                }
+                totalDisplay.textContent = total.toLocaleString();
+            }
+            typeSelect.addEventListener('change', calculateTotal);
+            quantityInput.addEventListener('input', calculateTotal);
+            calculateTotal();
+        }
+
+        function addToEnhancedBulk(itemId) {
+            const modal = document.getElementById('tempBulkModal');
+            if (!modal) return;
+            const type = modal.querySelector('#bulkType').value;
+            const quantity = parseInt(modal.querySelector('#bulkQuantity').value) || 0;
+            if (quantity < 1) return showToast('Please enter a valid quantity', 'error');
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+            userBulkOrder = userBulkOrder.filter(b => b.id !== itemId);
+            userBulkOrder.push({ id: itemId, name: item.name, price: item.price, type: type, quantity: quantity });
+            localStorage.setItem('burrowBulkOrder', JSON.stringify(userBulkOrder));
+            modal.remove();
+            showToast('Added to bulk order!', 'success');
+        }
+
+        function openBulkModal() {
+            if (!currentUser) return showToast('Log in first', 'error');
+            if (currentUser === 'HO121' || currentUser === 'mod121') return showToast('Staff cannot order', 'error');
+            document.getElementById('bulkModal').classList.add('show');
+            renderEnhancedBulkModal();
+        }
+
+        function closeBulkModal() {
+            document.getElementById('bulkModal').classList.remove('show');
+        }
+
+        function renderEnhancedBulkModal() {
+            const cont = document.getElementById('bulkModalContent');
+            if (!userBulkOrder.length) {
+                cont.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.5);">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">📭</div>
+                        <p>Your bulk order is empty</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">Add items from the shop to get started!</p>
+                    </div>`;
+                return;
+            }
+            let total = 0, html = '';
+            userBulkOrder.forEach(b => {
+                const shop = items.find(i => i.id === b.id);
+                if (!shop) return;
+                const priceNum = parseFloat(shop.price.replace(/[^0-9.]/g, '')) || 0;
+                let multiplier = 1, unit = 'items';
+                switch(b.type) {
+                    case 'stacks': multiplier = 64; unit = 'stacks'; break;
+                    case 'shulkers': multiplier = 27 * 64; unit = 'shulkers'; break;
+                }
+                const sub = priceNum * multiplier * b.quantity;
+                total += sub;
+                html += `
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,105,180,0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="color: #fff; margin: 0;">${b.name}</h4>
+                            <span style="color: #ffb6c1; font-size: 0.9rem;">${b.quantity} ${unit}</span>
+                        </div>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">
+                            ${shop.price} per item × ${multiplier} × ${b.quantity} ${unit} = ${sub} d
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--pink-primary);">≈ ${(multiplier * b.quantity).toLocaleString()} items total</span>
+                            <button class="btn-remove" onclick="removeFromBulk(${b.id})" style="padding: 6px 12px; background: rgba(255,82,82,0.2); color: #ff5252; border: 1px solid #ff5252; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Remove</button>
+                        </div>
+                    </div>`;
+            });
+            html += `
+                <div style="background: linear-gradient(135deg, rgba(255,105,180,0.1), rgba(105,240,174,0.1)); border: 2px solid var(--pink-primary); border-radius: 16px; padding: 25px; text-align: center; margin-top: 25px;">
+                    <h3>Total Order Value</h3>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #fff;">${total} d</div>
+                </div>
+                <button class="btn-confirm-order" onclick="submitEnhancedBulkOrder()" style="width: 100%; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, var(--green-primary) 0%, #2e7d32 100%); color: #1a0b2e; border: none; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Submit Order</button>`;
+            cont.innerHTML = html;
+        }
+
+        function removeFromBulk(id) {
+            userBulkOrder = userBulkOrder.filter(b => b.id !== id);
+            localStorage.setItem('burrowBulkOrder', JSON.stringify(userBulkOrder));
+            renderEnhancedBulkModal();
+        }
+
+        function submitEnhancedBulkOrder() {
+            if (!userBulkOrder.length) return showToast('Empty order', 'error');
+            const order = {
+                user: currentUser, discord: userDiscord, minecraft: userMinecraft,
+                items: [...userBulkOrder], timestamp: new Date().toISOString(),
+                id: Date.now(), completed: false
+            };
+            submittedOrders.push(order);
+            localStorage.setItem('burrowSubmittedOrders', JSON.stringify(submittedOrders));
+            userBulkOrder = [];
+            localStorage.setItem('burrowBulkOrder', JSON.stringify(userBulkOrder));
+            renderEnhancedBulkModal();
+            showToast('Order submitted! Check Discord.', 'success');
+            setTimeout(closeBulkModal, 1500);
+        }
+
+        function viewOrderDetails(orderId) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            const order = submittedOrders.find(o => o.id === orderId);
+            if (!order) return;
+            currentViewingOrder = order;
+            renderOrderView(order);
+            document.getElementById('orderViewModal').classList.add('show');
+        }
+
+        function closeOrderView() {
+            document.getElementById('orderViewModal').classList.remove('show');
+            currentViewingOrder = null;
+        }
+
+        function renderOrderView(order) {
+            const content = document.getElementById('orderViewContent');
+            let itemsHtml = '', total = 0;
+            const consolidatedItems = {};
+            order.items.forEach(item => {
+                const key = `${item.id}-${item.type}`;
+                if (consolidatedItems[key]) consolidatedItems[key].quantity += item.quantity;
+                else consolidatedItems[key] = { ...item };
+            });
+            Object.values(consolidatedItems).forEach(item => {
+                const shop = items.find(i => i.id === item.id);
+                if (!shop) return;
+                const priceNum = parseFloat(shop.price.replace(/[^0-9.]/g, '')) || 0;
+                let multiplier = 1, unit = 'items';
+                switch(item.type) {
+                    case 'stacks': multiplier = 64; unit = 'stacks'; break;
+                    case 'shulkers': multiplier = 27 * 64; unit = 'shulkers'; break;
+                }
+                const subtotal = priceNum * multiplier * item.quantity;
+                total += subtotal;
+                itemsHtml += `
+                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,105,180,0.3); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="color: #fff; margin: 0;">${item.name}</h4>
+                            <span style="color: #ffb6c1; font-size: 0.9rem;">${item.quantity} ${unit}</span>
+                        </div>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">
+                            ${shop.price} per item × ${multiplier} × ${item.quantity} ${unit} = ${subtotal} d
+                        </div>
+                        <div style="color: var(--pink-primary);">≈ ${(multiplier * item.quantity).toLocaleString()} items total</div>
+                    </div>`;
+            });
+            content.innerHTML = `
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: var(--pink-primary); margin-bottom: 15px;">Customer Information</h3>
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px;">
+                        <div style="margin-bottom: 10px;"><strong>Username:</strong> ${order.user}</div>
+                        <div style="margin-bottom: 10px;"><strong>Discord:</strong> ${order.discord}</div>
+                        <div style="margin-bottom: 10px;"><strong>Minecraft:</strong> ${order.minecraft}</div>
+                        <div><strong>Order Date:</strong> ${new Date(order.timestamp).toLocaleString()}</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: var(--pink-primary); margin-bottom: 15px;">Order Items</h3>
+                    ${itemsHtml}
+                </div>
+                <div style="background: linear-gradient(135deg, rgba(255,105,180,0.1), rgba(105,240,174,0.1)); border: 2px solid var(--pink-primary); border-radius: 16px; padding: 25px; text-align: center;">
+                    <h3>Total Order Value</h3>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #fff;">${total} d</div>
+                </div>
+                ${!order.completed ? `<button class="btn-confirm-order" onclick="confirmOrder(${order.id})">✓ Confirm Order</button>` : `<div style="text-align: center; padding: 20px; background: rgba(76, 175, 80, 0.1); border: 2px solid #4caf50; border-radius: 12px; color: #4caf50; font-weight: 700;">✓ Order Confirmed</div>`}
+            `;
+        }
+
+        function confirmOrder(orderId) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            const orderIndex = submittedOrders.findIndex(o => o.id === orderId);
+            if (orderIndex === -1) return;
+            const order = submittedOrders[orderIndex];
+            order.completed = true;
+            order.completedAt = new Date().toISOString();
+            order.completedBy = currentUser;
+            const logEntry = { ...order, action: 'confirmed', timestamp: order.completedAt, performedBy: currentUser };
+            orderLogs.push(logEntry);
+            localStorage.setItem('burrowOrderLogs', JSON.stringify(orderLogs));
+            bulkOrderLogs.push({ ...order, confirmedAt: order.completedAt, confirmedBy: currentUser });
+            localStorage.setItem('burrowBulkLogs', JSON.stringify(bulkOrderLogs));
+            submittedOrders.splice(orderIndex, 1);
+            localStorage.setItem('burrowSubmittedOrders', JSON.stringify(submittedOrders));
+            renderAdminOrders();
+            renderBulkLogs();
+            renderOrderLogs();
+            closeOrderView();
+            showToast('Order confirmed and logged!', 'success');
+        }
+
+        function renderOrderLogs() {
+            if (currentUser !== 'HO121') return;
+            const container = document.getElementById('orderLogsContainer');
+            if (!orderLogs.length) {
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No order logs yet...</p>';
+                return;
+            }
+            container.innerHTML = orderLogs.slice().reverse().map(log => {
+                let itemsHtml = log.items.map(item => {
+                    let unit = 'items', multiplier = 1;
+                    switch(item.type) {
+                        case 'stacks': unit = 'stacks'; multiplier = 64; break;
+                        case 'shulkers': unit = 'shulkers'; multiplier = 27 * 64; break;
+                    }
+                    const totalItems = multiplier * item.quantity;
+                    return `<div>• ${item.name}: ${item.quantity} ${unit} (${totalItems.toLocaleString()} items)</div>`;
+                }).join('');
+                const actionColor = log.action === 'confirmed' ? '#4caf50' : '#ff5252';
+                const actionIcon = log.action === 'confirmed' ? '✓' : '✗';
+                return `
+                    <div class="log-entry" style="border-left: 4px solid ${actionColor};">
+                        <div class="log-customer">${log.user} ${actionIcon} ${log.action}</div>
+                        <div class="log-details">
+                            <div><strong>Discord:</strong> ${log.discord}</div>
+                            <div><strong>Items:</strong></div>${itemsHtml}
+                            <div><strong>Performed by:</strong> ${log.performedBy} at ${new Date(log.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderBulkLogs() {
+            if (currentUser !== 'HO121') return;
+            const container = document.getElementById('logsContainer');
+            if (!bulkOrderLogs.length) {
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No completed orders yet...</p>';
+                return;
+            }
+            container.innerHTML = bulkOrderLogs.slice().reverse().map(log => {
+                let itemsHtml = log.items.map(item => {
+                    let unit = 'items', multiplier = 1;
+                    switch(item.type) {
+                        case 'stacks': unit = 'stacks'; multiplier = 64; break;
+                        case 'shulkers': unit = 'shulkers'; multiplier = 27 * 64; break;
+                    }
+                    const totalItems = multiplier * item.quantity;
+                    return `<div>• ${item.name}: ${item.quantity} ${unit} (${totalItems.toLocaleString()} items)</div>`;
+                }).join('');
+                return `
+                    <div class="log-entry">
+                        <div class="log-customer">${log.user}</div>
+                        <div class="log-details">
+                            <div><strong>Discord:</strong> ${log.discord}</div>
+                            <div><strong>Items:</strong></div>${itemsHtml}
+                            <div><strong>Confirmed by:</strong> ${log.confirmedBy} at ${new Date(log.confirmedAt).toLocaleString()}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function clearAllOrders() {
+            if (!confirm('Clear ALL submitted orders?')) return;
+            const logEntry = { action: 'cleared', timestamp: new Date().toISOString(), performedBy: currentUser, orderCount: submittedOrders.length };
+            orderLogs.push(logEntry);
+            localStorage.setItem('burrowOrderLogs', JSON.stringify(orderLogs));
+            submittedOrders = [];
+            localStorage.setItem('burrowSubmittedOrders', JSON.stringify(submittedOrders));
+            renderAdminOrders();
+            renderOrderLogs();
+            showToast('All orders cleared', 'success');
+        }
+
+        /* CHAT SYSTEM */
+        function openGlobalChat() {
+            if (!currentUser) return showToast('Log in first', 'error');
+            if (bannedUsers.includes(currentUser.toLowerCase())) return showToast('Banned from chat', 'error');
+            currentChat = 'global';
+            currentSupportUser = null;
+            isStaffViewingSupport = false;
+            document.getElementById('globalChatOverlay').classList.add('show');
+            renderGlobalMessages();
+            scrollToBottom('globalMessages');
+            const muted = mutedUsers.includes(currentUser.toLowerCase());
+            document.getElementById('globalInput').disabled = muted;
+            document.getElementById('globalSendBtn').disabled = muted;
+            document.getElementById('globalMutedBanner').style.display = muted ? 'block' : 'none';
+        }
+
+        function openSupportChat() {
+            if (!currentUser) return showToast('Log in first', 'error');
+            if (bannedUsers.includes(currentUser.toLowerCase())) return showToast('Banned from chat', 'error');
+            currentChat = 'support';
+            currentSupportUser = currentUser;
+            isStaffViewingSupport = false;
+            document.getElementById('supportChatOverlay').classList.add('show');
+            document.getElementById('supportChatTitle').textContent = `Support - ${currentUser}`;
+            if (!supportChats[currentSupportUser]) supportChats[currentSupportUser] = [];
+            renderSupportMessages();
+            scrollToBottom('supportMessages');
+            const muted = mutedUsers.includes(currentUser.toLowerCase());
+            document.getElementById('supportInput').disabled = muted;
+            document.getElementById('supportSendBtn').disabled = muted;
+            document.getElementById('supportMutedBanner').style.display = muted ? 'block' : 'none';
+        }
+
+        function closeChat() {
+            document.getElementById('globalChatOverlay').classList.remove('show');
+            document.getElementById('supportChatOverlay').classList.remove('show');
+            currentChat = null;
+            currentSupportUser = null;
+            isStaffViewingSupport = false;
+        }
+
+        function sendGlobalMessage() {
+            const input = document.getElementById('globalInput');
+            const content = input.value.trim();
+            if (!content || !currentUser || mutedUsers.includes(currentUser.toLowerCase())) return;
+            const msg = {
+                id: Date.now(), author: currentUser, content,
+                timestamp: new Date().toISOString(), deleted: false,
+                isOwner: currentUser === 'HO121', isMod: currentUser === 'mod121'
+            };
+            globalMessages.push(msg);
+            localStorage.setItem('burrowGlobalChat', JSON.stringify(globalMessages));
+            input.value = '';
+            renderGlobalMessages();
+            scrollToBottom('globalMessages');
+        }
+
+        function sendSupportMessage() {
+            const input = document.getElementById('supportInput');
+            const content = input.value.trim();
+            if (!content || !currentUser || mutedUsers.includes(currentUser.toLowerCase())) return;
+            let chatUser = isStaffViewingSupport ? currentSupportUser : currentUser;
+            if (!chatUser) return;
+            const msg = {
+                id: Date.now(), author: currentUser, content,
+                timestamp: new Date().toISOString(), deleted: false,
+                isOwner: currentUser === 'HO121', isMod: currentUser === 'mod121'
+            };
+            if (!supportChats[chatUser]) supportChats[chatUser] = [];
+            supportChats[chatUser].push(msg);
+            localStorage.setItem('burrowSupportChats', JSON.stringify(supportChats));
+            input.value = '';
+            renderSupportMessages();
+            scrollToBottom('supportMessages');
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function scrollToBottom(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollTop = el.scrollHeight;
+        }
+
+        /* ADMIN/MOD FUNCTIONS */
+        function renderSupportList() {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            const cont = document.getElementById('supportChatsContainer');
+            const users = Object.keys(supportChats).filter(u => u !== 'HO121' && u !== 'mod121');
+            if (!users.length) {
+                cont.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:40px">No support tickets</p>';
+                return;
+            }
+            cont.innerHTML = users.map(user => {
+                const msgs = supportChats[user] || [];
+                const last = msgs[msgs.length - 1];
+                const unread = msgs.filter(m => !m.readByStaff && (m.author !== 'HO121' && m.author !== 'mod121')).length;
+                return `
+                    <div class="support-chat-item" onclick="openStaffSupportChat('${user}')" style="cursor:pointer">
+                        <div class="support-user-info">
+                            <h4>${user} ${unread > 0 ? `<span style="background:#ff5252;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem">${unread} new</span>` : ''}</h4>
+                            <p>${last ? last.content.substring(0, 50) + '...' : 'No messages'}</p>
+                        </div>
+                        <div class="support-meta">
+                            <div class="support-time">${last ? new Date(last.timestamp).toLocaleTimeString() : ''}</div>
+                            <button class="btn-close-ticket" onclick="event.stopPropagation(); closeSupportTicket('${user}')" title="Close Ticket">✕ Close</button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderBannedList() {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            const cont = document.getElementById('bannedList');
+            const banned = bannedUsers.length;
+            const mutedOnly = mutedUsers.filter(u => !bannedUsers.includes(u));
+            if (!banned && !mutedOnly.length) {
+                cont.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center">No banned or muted users</p>';
+                return;
+            }
+            let html = '';
+            if (banned) {
+                html += '<h4 style="color:#ff5252;margin-bottom:15px">🚫 Banned</h4>';
+                html += bannedUsers.map(u => `
+                    <div class="banned-item">
+                        <span class="banned-name">${u}</span>
+                        <button class="btn-unban" onclick="unbanUser('${u}')">Unban</button>
+                    </div>`).join('');
+            }
+            if (mutedOnly.length) {
+                html += '<h4 style="color:#ff69b4;margin:20px 0 15px">🔇 Muted Only</h4>';
+                html += mutedOnly.map(u => `
+                    <div class="banned-item">
+                        <span class="banned-name" style="color:#ff69b4">${u}</span>
+                        <button class="btn-unmute" onclick="unmuteUser('${u}')">Unmute</button>
+                    </div>`).join('');
+            }
+            cont.innerHTML = html;
+        }
+
+        function renderAdminOrders() {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            const cont = document.getElementById('adminBulkList');
+            if (!submittedOrders.length) {
+                cont.innerHTML = `<div class="empty-orders"><div style="font-size:4rem;margin-bottom:20px">📭</div><p>No bulk orders yet</p></div>`;
+                return;
+            }
+            cont.innerHTML = submittedOrders.map(order => {
+                const consolidatedItems = {};
+                order.items.forEach(item => {
+                    const key = `${item.id}-${item.type}`;
+                    if (consolidatedItems[key]) consolidatedItems[key].quantity += item.quantity;
+                    else consolidatedItems[key] = { ...item };
+                });
+                let itemsHtml = Object.values(consolidatedItems).map(b => {
+                    let unit = 'items', multiplier = 1;
+                    switch(b.type) {
+                        case 'stacks': multiplier = 64; unit = 'stacks'; break;
+                        case 'shulkers': multiplier = 27 * 64; unit = 'shulkers'; break;
+                    }
+                    const totalItems = multiplier * b.quantity;
+                    return `
+                        <div class="bulk-order-item">
+                            <span class="bulk-item-name">${b.name}</span>
+                            <span class="bulk-item-qty">${b.quantity} ${unit} (${totalItems.toLocaleString()} items)</span>
+                        </div>`;
+                }).join('');
+                const total = Object.values(consolidatedItems).reduce((sum, b) => {
+                    const shop = items.find(i => i.id === b.id);
+                    const priceNum = parseFloat((shop?.price || '0').replace(/[^0-9.]/g, '')) || 0;
+                    let multiplier = 1;
+                    switch(b.type) {
+                        case 'stacks': multiplier = 64; break;
+                        case 'shulkers': multiplier = 27 * 64; break;
+                    }
+                    return sum + (priceNum * multiplier * b.quantity);
+                }, 0);
+                return `
+                    <div class="bulk-order-card">
+                        <div class="bulk-order-header">
+                            <div>
+                                <div class="bulk-order-user">${order.user}</div>
+                                <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-top:5px">MC: ${order.minecraft} | Discord: ${order.discord}</div>
+                            </div>
+                            <div class="bulk-order-time">${new Date(order.timestamp).toLocaleString()}</div>
+                        </div>
+                        <div class="bulk-order-details">${itemsHtml}</div>
+                        <div class="bulk-order-total">Total: ${total} d</div>
+                        <div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+                            <button class="btn-view-order" onclick="viewOrderDetails(${order.id})">👁️ View Details</button>
+                            <button class="btn-completed" onclick="confirmOrder(${order.id})">✓ Confirm Order</button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function closeSupportTicket(username) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            if (!confirm(`Close ticket for ${username}?`)) return;
+            delete supportChats[username];
+            localStorage.setItem('burrowSupportChats', JSON.stringify(supportChats));
+            if (currentSupportUser === username) closeChat();
+            renderSupportList();
+            showToast('Ticket closed', 'success');
+        }
+
+        function openStaffSupportChat(username) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            currentChat = 'support';
+            currentSupportUser = username;
+            isStaffViewingSupport = true;
+            document.getElementById('supportChatOverlay').classList.add('show');
+            document.getElementById('supportChatTitle').textContent = `Support - ${username}`;
+            if (supportChats[username]) {
+                supportChats[username].forEach(m => {
+                    if (m.author !== 'HO121' && m.author !== 'mod121') m.readByStaff = true;
+                });
+                localStorage.setItem('burrowSupportChats', JSON.stringify(supportChats));
+                renderSupportList();
+            }
+            renderSupportMessages();
+            scrollToBottom('supportMessages');
+        }
+
+        function deleteMessage(type, msgId) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            if (type === 'global') {
+                const msg = globalMessages.find(m => m.id === msgId);
+                if (msg) {
+                    msg.deleted = true;
+                    localStorage.setItem('burrowGlobalChat', JSON.stringify(globalMessages));
+                    renderGlobalMessages();
+                }
+            } else if (type === 'support' && currentSupportUser) {
+                const chat = supportChats[currentSupportUser];
+                if (chat) {
+                    const msg = chat.find(m => m.id === msgId);
+                    if (msg) {
+                        msg.deleted = true;
+                        localStorage.setItem('burrowSupportChats', JSON.stringify(supportChats));
+                        renderSupportMessages();
+                    }
+                }
+            }
+        }
+
+        function muteUser(username) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            if (username === 'HO121' || username === 'mod121') return;
+            if (!mutedUsers.includes(username.toLowerCase())) {
+                mutedUsers.push(username.toLowerCase());
+                localStorage.setItem('burrowMuted', JSON.stringify(mutedUsers));
+                showToast(`${username} muted`, 'success');
+            }
+        }
+
+        function unmuteUser(username) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            mutedUsers = mutedUsers.filter(u => u !== username.toLowerCase());
+            localStorage.setItem('burrowMuted', JSON.stringify(mutedUsers));
+            renderBannedList();
+            showToast(`${username} unmuted`, 'success');
+        }
+
+        function banUser(username) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            if (username === 'HO121' || username === 'mod121') return;
+            if (!bannedUsers.includes(username.toLowerCase())) {
+                bannedUsers.push(username.toLowerCase());
+                localStorage.setItem('burrowBanned', JSON.stringify(bannedUsers));
+                showToast(`${username} banned`, 'success');
+            }
+        }
+
+        function unbanUser(username) {
+            if (currentUser !== 'HO121' && currentUser !== 'mod121') return;
+            bannedUsers = bannedUsers.filter(u => u !== username.toLowerCase());
+            localStorage.setItem('burrowBanned', JSON.stringify(bannedUsers));
+            renderBannedList();
+            showToast(`${username} unbanned`, 'success');
+        }
+
+        function renderGlobalMessages() {
+            const box = document.getElementById('globalMessages');
+            box.innerHTML = globalMessages.map(m => createMessageHTML(m, 'global')).join('');
+        }
+
+        function renderSupportMessages() {
+            const box = document.getElementById('supportMessages');
+            if (!currentSupportUser || !supportChats[currentSupportUser]) {
+                box.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);margin-top:40px">No messages yet. Start the conversation!</p>';
+                return;
+            }
+            box.innerHTML = supportChats[currentSupportUser].map(m => createMessageHTML(m, 'support')).join('');
+        }
+
+        function createMessageHTML(msg, type, className = '') {
+            const isStaffUser = currentUser === 'HO121';
+            const isModUser = currentUser === 'mod121';
+            const isOwn = msg.author === currentUser;
+            const isOwnerMsg = msg.isOwner || msg.author === 'HO121';
+            const isModMsg = msg.isMod || msg.author === 'mod121';
+            const time = new Date(msg.timestamp).toLocaleTimeString();
+            const chatRoleDisplay = getChatRoleDisplay(msg.author);
+            let actions = '';
+            if ((isStaffUser || isModUser) && !msg.deleted && msg.author !== 'HO121' && msg.author !== 'mod121') {
+                actions = `
+                    <div class="message-actions">
+                        <button class="msg-btn msg-btn-delete" onclick="deleteMessage('${type}', ${msg.id})">🗑 Delete</button>
+                        <button class="msg-btn msg-btn-mute" onclick="muteUser('${msg.author}')">🔇 Mute</button>
+                        <button class="msg-btn msg-btn-ban" onclick="banUser('${msg.author}')">🚫 Ban</button>
+                    </div>`;
+            }
+            const authorDisplay = isOwnerMsg ? '[OWNER]' : (isModMsg ? '[MOD]' : msg.author);
+            const authorClass = isOwnerMsg ? 'owner' : (isModMsg ? 'mod' : '');
+            let cls = className || 'chat-message ' + (isOwn ? 'own' : 'other');
+            if (msg.deleted) cls += ' deleted';
+            else if (isOwnerMsg) cls += ' owner-msg';
+            else if (isModMsg) cls += ' mod-msg';
+            return `
+                <div class="${cls}" data-msg-id="${msg.id}">
+                    <div class="message-header">
+                        <span class="message-author ${authorClass}">${chatRoleDisplay}${authorDisplay}</span>
+                        <span class="message-time">${time}</span>
+                    </div>
+                    <div class="message-content">${msg.deleted ? '<em>Message deleted by moderator</em>' : escapeHtml(msg.content)}</div>
+                    ${actions}
+                </div>`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
